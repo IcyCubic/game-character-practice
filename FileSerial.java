@@ -1,23 +1,51 @@
 import java.io.*;
 import java.util.Scanner;
+//import java.util.regex.Pattern;
 
 public class FileSerial{
+	private	Scanner console = new Scanner(System.in);
+
 	
 	public void exportGame(Player p){
-		try{
-			ObjectOutputStream so = new ObjectOutputStream(new FileOutputStream(".\\serial\\" + p.getName() + ".dat"));
-			so.writeObject(p);
-			so.flush();
-			so.close();
-		} catch (Exception e){
-			e.printStackTrace();
+		File test = new File(".\\serial\\" + p.getName() + ".dat");
+		String input;
+		char overwrite = 'N'; 
+		boolean loop = true;	
+			
+		while (loop == true) {
+			if (test.exists()){
+				System.out.printf(" *** %s.dat already exists! ***%n", p.getName());
+				System.out.print("Do you wish to overwrite the file? (Y/N): ");
+				input = console.nextLine();
+				System.out.println();
+				input = input.toUpperCase();
+				overwrite = input.charAt(0);					
+				if ((overwrite == 'Y' || overwrite == 'N') && input.length() == 1)
+					loop = false;
+				else
+					System.out.println("Invalid Input!");
+			}
+			else
+				loop = false;
 		}
-		System.out.printf("Character file exported as: %s.dat! %n", p.getName());
+		if (overwrite == 'Y' || !test.exists()){
+			try{
+				ObjectOutputStream so = new ObjectOutputStream(new FileOutputStream(".\\serial\\" + p.getName() + ".dat"));
+				so.writeObject(p);
+				so.flush();
+				so.close();
+			} catch (Exception e){
+				e.printStackTrace();
+			}
+			System.out.printf("Character file exported as: %s.dat! %n", p.getName());
+		}
+		else {
+			System.out.println("Export aborted.");
+		}			
 	}
 	
 	public Player importGame(){
 		Player temp = null;
-		Scanner console = new Scanner(System.in);
 		File test;
 		String name;
 
