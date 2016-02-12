@@ -1,41 +1,59 @@
-/*
-To-do:
-Implement check to see if file exists, confirm overwrite.
-*/
-
 import java.io.*;
 import java.util.*;
 
 public class FileOps{
 	private final String s = ",;,"; //separator for fields in the save file
+	private Scanner console = new Scanner(System.in);
 	
-	
-	public void saveGame(Player p){ //saves the character to a file named according to the character name with fields separated by a comma
+	//saves the character to a file named according to the character name with fields separated by a comma
+	public void saveGame(Player p){ 
 		int[] stats = p.getStats();
-		
-		try{
-			PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(".\\save\\" + p.getName() + ".txt")));
+		File test = new File(".\\save\\" + p.getName() + ".txt");
+		String input;
+		char overwrite = 'N'; 
+		boolean loop = true;	
 			
-			out.print(p.getName() + s + p.getRace() + s + p.getDescription() + s);
-			for (int i = 0; i < stats.length; i++){
-				if (i == stats.length - 1)
-					out.print(stats[i]);
+		while (loop == true) { // Existing file overwrite check
+			if (test.exists()){
+				System.out.printf(" *** %s.txt already exists! ***%n", p.getName());
+				System.out.print("Do you wish to overwrite the file? (Y/N): ");
+				input = console.nextLine();
+				System.out.println();
+				input = input.toUpperCase();
+				overwrite = input.charAt(0);					
+				if ((overwrite == 'Y' || overwrite == 'N') && input.length() == 1) //valid input check
+					loop = false;
 				else
-					out.print(stats[i] + s);
+					System.out.println("Invalid Input!");
 			}
-	//		out.println(";;;");
-
-			out.close();
-		}catch( IOException e){
-			System.err.println(e);
+			else
+				loop = false;
 		}
-		System.out.printf("Character Saved as %s.txt! %n", p.getName());
+		
+		if (overwrite == 'Y' || !test.exists()){ // overwrite or if file does not already exist
+			try{
+				PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(".\\save\\" + p.getName() + ".txt")));
+			
+				out.print(p.getName() + s + p.getRace() + s + p.getDescription() + s);
+				for (int i = 0; i < stats.length; i++){
+					if (i == stats.length - 1)
+						out.print(stats[i]);
+					else
+						out.print(stats[i] + s);
+				}
+				out.close();
+			}catch( IOException e){
+				System.err.println(e);
+			}
+			System.out.printf("Character Saved as %s.txt! %n", p.getName());
+		}
+		else
+			System.out.println("Save aborted!");
 	}
 	
 	public Player loadGame(){
 		Player loaded = new Player();
 		String charname;
-		Scanner console = new Scanner(System.in);
 		File test;
 		
 		do {		
